@@ -38,3 +38,19 @@
 .fullscreen {
   margin-top: var(--size-small-2);
 }
+
+.inputs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--size-small-1);
+}
+
+.payWhatYouWant,
+.priceInput {
+  margin-right: var(--size-regular);
+}
+
+.details {
+  margin-bottom: var(--size-small-5);
+}

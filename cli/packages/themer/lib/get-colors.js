@@ -1,7 +1,7 @@
 const fs = require('fs'),
   { promisify } = require('util'),
   readFile = promisify(fs.readFile),
-  { safeLoad } = require('js-yaml'),
+  { load } = require('js-yaml'),
   one = require('onecolor');
 
 const colorMap = {
@@ -26,18 +26,22 @@ const colorMap = {
 module.exports = async function getColors(resolvedPathToColors) {
   if (/\.ya?ml$/.test(resolvedPathToColors)) {
     console.log('parsing colors as base16 scheme...');
-    const base16 = safeLoad(await readFile(resolvedPathToColors, 'utf8'));
-    const transformed = Object.entries(base16).reduce((colors, [key, value]) => {
-      if (key in colorMap) {
-        return {
-          ...colors,
-          [colorMap[key]]: one(value).hex(),
-        };
-      } else {
-        return colors;
-      }
-    }, {});
-    const isLight = one(base16.base00).lightness() > one(base16.base07).lightness();
+    const base16 = load(await readFile(resolvedPathToColors, 'utf8'));
+    const transformed = Object.entries(base16).reduce(
+      (colors, [key, value]) => {
+        if (key in colorMap) {
+          return {
+            ...colors,
+            [colorMap[key]]: one(value).hex(),
+          };
+        } else {
+          return colors;
+        }
+      },
+      {},
+    );
+    const isLight =
+      one(base16.base00).lightness() > one(base16.base07).lightness();
     return {
       [isLight ? 'light' : 'dark']: transformed,
     };

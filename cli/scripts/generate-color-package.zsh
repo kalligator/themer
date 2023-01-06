@@ -1,11 +1,12 @@
 #!/bin/zsh
 
-NAME="themer-colors-$1"
+DIR="colors-$1"
+NAME="@themerdev/$DIR"
 
 echo Generating $NAME...
 
 PACKAGES_DIR="$(realpath "$(dirname $0:A)/../packages")"
-PACKAGE="$PACKAGES_DIR/$NAME"
+PACKAGE="$PACKAGES_DIR/$DIR"
 
 mkdir $PACKAGE
 
@@ -15,8 +16,8 @@ LICENSE.md
 EOF
 
 cat << EOF > $PACKAGE/.yarnrc
-version-tag-prefix $NAME-v
-version-git-message $NAME-v%s
+version-tag-prefix "$NAME-v"
+version-git-message "$NAME-v%s"
 EOF
 
 cat << EOF > $PACKAGE/package.json
@@ -37,13 +38,13 @@ cat << EOF > $PACKAGE/package.json
     "prepublishOnly": "cp ../../../LICENSE.md ./"
   },
   "repository": {
-    "url": "git+ssh://git@github.com/mjswensen/themer.git",
+    "url": "git+ssh://git@github.com/themerdev/themer.git",
     "type": "git"
   },
   "bugs": {
-    "url": "https://github.com/mjswensen/themer/issues"
+    "url": "https://github.com/themerdev/themer/issues"
   },
-  "homepage": "https://github.com/mjswensen/themer/tree/master/cli/packages/$NAME#readme",
+  "homepage": "https://github.com/themerdev/themer/tree/main/cli/packages/$DIR#readme",
   "peerDependencies": {
     "themer": "^3"
   },
@@ -51,7 +52,8 @@ cat << EOF > $PACKAGE/package.json
     "themer",
     "colors",
     "colorset",
-    "theme"
+    "theme",
+    "$1"
   ]
 }
 EOF
@@ -59,7 +61,7 @@ EOF
 cat << EOF > $PACKAGE/README.md
 # $NAME
 
-A [themer](https://github.com/mjswensen/themer) color set based on TODO
+A [themer](https://github.com/themerdev/themer) color set based on TODO
 
 ## Installation & usage
 
@@ -77,6 +79,44 @@ mkdir $LIB
 
 cat << EOF > $LIB/index.js
 // TODO
+module.exports.colors = {
+  dark: {
+    shade0: '',
+    shade1: '',
+    shade2: '',
+    shade3: '',
+    shade4: '',
+    shade5: '',
+    shade6: '',
+    shade7: '',
+    accent0: '',
+    accent1: '',
+    accent2: '',
+    accent3: '',
+    accent4: '',
+    accent5: '',
+    accent6: '',
+    accent7: '',
+  },
+  light: {
+    shade0: '',
+    shade1: '',
+    shade2: '',
+    shade3: '',
+    shade4: '',
+    shade5: '',
+    shade6: '',
+    shade7: '',
+    accent0: '',
+    accent1: '',
+    accent2: '',
+    accent3: '',
+    accent4: '',
+    accent5: '',
+    accent6: '',
+    accent7: '',
+  },
+};
 EOF
 
 cat << EOF > $LIB/index.spec.js

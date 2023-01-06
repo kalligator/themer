@@ -2,14 +2,16 @@ import { useContext } from 'react';
 import styles from './Tabs.module.css';
 import ThemeContext from './ThemeContext';
 
-export default ({ children }) => {
+const Tabs = ({ children }) => {
   const { getActiveColorOrFallback } = useContext(ThemeContext);
   return children({
     tabClassName: styles.tab,
-    getTabStyle: active => ({
-      backgroundColor: active ? getActiveColorOrFallback(['shade0'], true) : getActiveColorOrFallback(['shade2'], true),
-      color: getActiveColorOrFallback(['shade7']),
-      borderColor: getActiveColorOrFallback(['shade7']),
+    getTabStyle: (active) => ({
+      'backgroundColor': active
+        ? getActiveColorOrFallback(['shade0'], true)
+        : getActiveColorOrFallback(['shade2'], true),
+      'color': getActiveColorOrFallback(['shade7']),
+      'borderColor': getActiveColorOrFallback(['shade7']),
       '--tab-bottom-overlap-color': active
         ? getActiveColorOrFallback(['shade0'], true)
         : getActiveColorOrFallback(['shade2'], true),
@@ -24,3 +26,5 @@ export default ({ children }) => {
     },
   });
 };
+
+export default Tabs;

@@ -12,3 +12,7 @@
   border-left-style: solid;
   border-left-width: var(--size-small-6);
 }
+
+.victorMono {
+  font-family: 'Victor Mono', 'Fira Code', monospace;
+}

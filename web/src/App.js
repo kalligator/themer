@@ -1,9 +1,13 @@
-import React from 'react';
-import { ThemeProvider } from './ThemeContext';
+import { UrlThemeProvider } from './ThemeContext';
 import Main from './Main';
+import { PriceProvider } from './PriceContext';
 
-export default ({ history }) => (
-  <ThemeProvider history={ history }>
-    <Main />
-  </ThemeProvider>
+const App = () => (
+  <UrlThemeProvider>
+    <PriceProvider>
+      <Main />
+    </PriceProvider>
+  </UrlThemeProvider>
 );
+
+export default App;

@@ -1,23 +1,33 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import Button from './Button';
 import Radio from './Radio';
 import styles from './WallpaperModal.module.css';
 import ThemeContext from './ThemeContext';
+import useEscListener from './useEscListener';
 
-import { render as blockWaveRender } from 'themer-wallpaper-block-wave';
-import { render as diamondsRender } from 'themer-wallpaper-diamonds';
-import { render as octagonRender } from 'themer-wallpaper-octagon';
-import { render as shirtsRender } from 'themer-wallpaper-shirts';
-import { render as trianglesRender } from 'themer-wallpaper-triangles';
-import { render as trianglifyRender } from 'themer-wallpaper-trianglify';
+import { render as blockWaveRender } from '@themerdev/wallpaper-block-wave';
+import { render as burstRender } from '@themerdev/wallpaper-burst';
+import { render as circuitsRender } from '@themerdev/wallpaper-circuits';
+import { render as diamondsRender } from '@themerdev/wallpaper-diamonds';
+import { render as dotGridRender } from '@themerdev/wallpaper-dot-grid';
+import { render as octagonRender } from '@themerdev/wallpaper-octagon';
+import { render as shirtsRender } from '@themerdev/wallpaper-shirts';
+import { render as trianglesRender } from '@themerdev/wallpaper-triangles';
+import { render as trianglifyRender } from '@themerdev/wallpaper-trianglify';
 
-const getImagePromises = (pkg, colors, width, height) => {
-  const options = { [`${pkg}-size`]: `${width}x${height}` };
-  switch (pkg) {
+const getImagePromises = (wallpaper, colors, width, height) => {
+  const options = { [`${wallpaper}-size`]: `${width}x${height}` };
+  switch (wallpaper) {
     case 'themer-wallpaper-block-wave':
       return blockWaveRender(colors, options);
+    case 'themer-wallpaper-burst':
+      return burstRender(colors, options);
+    case 'themer-wallpaper-circuits':
+      return circuitsRender(colors, options);
     case 'themer-wallpaper-diamonds':
       return diamondsRender(colors, options);
+    case 'themer-wallpaper-dot-grid':
+      return dotGridRender(colors, options);
     case 'themer-wallpaper-octagon':
       return octagonRender(colors, options);
     case 'themer-wallpaper-shirts':
@@ -27,25 +37,16 @@ const getImagePromises = (pkg, colors, width, height) => {
     case 'themer-wallpaper-trianglify':
       return trianglifyRender(colors, options);
     default:
-      throw new Error(`${pkg} not found`);
+      throw new Error(`${wallpaper} not found`);
   }
-}
+};
 
-export default ({ onClose, wallpaper, colors }) => {
+const WallpaperModal = ({ onClose, wallpaper, colors }) => {
   const [images, setImages] = useState([]);
   const [imageIndex, setImageIndex] = useState(0);
-  
-  const escListener = evt => {
-    if (evt.key === 'Escape') {
-      onClose();
-    }
-  };
-  useEffect(() => {
-    window.document.addEventListener('keydown', escListener);
-    return () => {
-      window.document.removeEventListener('keydown', escListener);
-    };
-  });
+  const [backgroundImage, setBackgroundImage] = useState('none');
+
+  useEscListener(onClose);
 
   const { getActiveColorOrFallback } = useContext(ThemeContext);
 
@@ -63,7 +64,7 @@ export default ({ onClose, wallpaper, colors }) => {
             colors,
             width * devicePixelRatio,
             height * devicePixelRatio,
-          )
+          ),
         ),
       );
     })();
@@ -73,53 +74,68 @@ export default ({ onClose, wallpaper, colors }) => {
     button.current.focus();
   }, [button]);
 
-  const backgroundImage = images[imageIndex]
-    ? `url('data:image/svg+xml;utf8,${encodeURIComponent(images[imageIndex].contents.toString('utf8'))}')`
-    : 'none';
-  
+  useEffect(() => {
+    let url;
+    if (images[imageIndex]) {
+      url = URL.createObjectURL(
+        new Blob([images[imageIndex].contents], { type: 'image/png' }),
+      );
+      setBackgroundImage(`url("${url}")`);
+    } else {
+      setBackgroundImage('none');
+    }
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [images, imageIndex]);
+
   return (
     <div
-      className={ styles.scrim }
+      className={styles.scrim}
       style={{ backgroundColor: getActiveColorOrFallback(['shade0'], true) }}
-      ref={ node }
+      ref={node}
     >
-      { backgroundImage ? (
-        <div
-          className={ styles.image }
-          style={{ backgroundImage }}
-        />
+      {backgroundImage ? (
+        <div className={styles.image} style={{ backgroundImage }} />
       ) : (
-        <span style={{ color: getActiveColorOrFallback(['shade2']) }}>loading...</span>
-      ) }
-      <span className={ styles.options }>
-        { images.length > 1
-            ? (
-                <span
-                  className={ styles.variations }
-                  style={{
-                    backgroundColor: getActiveColorOrFallback(['shade2'], true),
-                    borderColor: getActiveColorOrFallback(['shade4']),
-                  }}
-                >
-                  { images.map((_, i) => (
-                    <Radio
-                      key={ `${wallpaper}-${i}` }
-                      className={ styles.variation }
-                      color={ getActiveColorOrFallback(['shade7']) }
-                      onChange={ () => setImageIndex(i) }
-                      value={ i === imageIndex }
-                      label={ `Variation ${i + 1}` }
-                    />
-                  )) }
-                </span>
-              )
-            : null
-        }
-        <Button
-          onClick={ onClose }
-          ref={ button }
-        >Close</Button>
+        <span style={{ color: getActiveColorOrFallback(['shade2']) }}>
+          loading...
+        </span>
+      )}
+      <span className={styles.options}>
+        {images.length > 1 ? (
+          <span
+            className={styles.variations}
+            style={{
+              backgroundColor: getActiveColorOrFallback(['shade2'], true),
+              borderColor: getActiveColorOrFallback(['shade4']),
+            }}
+          >
+            {images.map((_, i) => (
+              <Radio
+                key={`${wallpaper}-${i}`}
+                className={styles.variation}
+                color={getActiveColorOrFallback(['shade7'])}
+                onChange={() => {
+                  setImageIndex(i);
+                  window.__ssa__log('change wallpaper preview image index', {
+                    index: i,
+                  });
+                }}
+                value={i === imageIndex}
+                label={`Variation ${i + 1}`}
+              />
+            ))}
+          </span>
+        ) : null}
+        <Button onClick={onClose} ref={button}>
+          Close
+        </Button>
       </span>
     </div>
   );
-}
+};
+
+export default WallpaperModal;

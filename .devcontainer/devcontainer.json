@@ -1,0 +1,9 @@
+{
+  "name": "themer",
+  "build": {
+    "dockerfile": "./Dockerfile"
+  },
+  "remoteUser": "node",
+  "extensions": ["esbenp.prettier-vscode"],
+  "postCreateCommand": "cd cli && yarn && cd ../web && yarn"
+}
